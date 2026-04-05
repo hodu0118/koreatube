@@ -13,13 +13,6 @@ import {
   getDocs 
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-import { 
-  getStorage, 
-  ref, 
-  uploadBytes, 
-  getDownloadURL 
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
-
 
 // 🔥 Firebase 설정
 const firebaseConfig = {
@@ -35,7 +28,6 @@ const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
 
 // 🔐 회원가입
@@ -66,29 +58,49 @@ document.getElementById("login").onclick = async () => {
 };
 
 
-// 📤 업로드
+// 🎬 영상 업로드 (Cloudinary🔥)
 document.getElementById("upload").onclick = async () => {
   const file = document.getElementById("file").files[0];
   const title = document.getElementById("title").value;
 
   if (!file) return alert("파일 선택해!");
 
-  const storageRef = ref(storage, "videos/" + file.name);
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "koreatube"); // ✅ preset 이름
 
-  await uploadBytes(storageRef, file);
-  const url = await getDownloadURL(storageRef);
+  try {
+    const res = await fetch("https://api.cloudinary.com/v1_1/dftz3fzmw/video/upload", {
+      method: "POST",
+      body: formData
+    });
 
-  await addDoc(collection(db, "videos"), {
-    title: title,
-    url: url
-  });
+    const data = await res.json();
 
-  alert("업로드 완료!");
-  loadVideos();
+    if (!data.secure_url) {
+      console.error(data);
+      return alert("업로드 실패");
+    }
+
+    const videoUrl = data.secure_url;
+
+    // 🔥 Firestore 저장
+    await addDoc(collection(db, "videos"), {
+      title: title,
+      url: videoUrl
+    });
+
+    alert("업로드 완료!");
+    loadVideos();
+
+  } catch (err) {
+    console.error(err);
+    alert("에러 발생");
+  }
 };
 
 
-// 🎬 영상 불러오기
+// 🎥 영상 불러오기
 async function loadVideos() {
   const videosDiv = document.getElementById("videos");
   videosDiv.innerHTML = "";
@@ -111,5 +123,5 @@ async function loadVideos() {
 }
 
 
-// 🔄 페이지 로드시 실행
+// 🔄 처음 로드
 loadVideos();
