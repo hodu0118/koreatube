@@ -25,7 +25,6 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
 const auth = getAuth(app);
 const db = getFirestore(app);
 
@@ -58,8 +57,10 @@ document.getElementById("login").onclick = async () => {
 };
 
 
-// 🎬 영상 업로드 (Cloudinary🔥)
+// 🎬 영상 업로드 (🔥 CORS 해결 버전)
 document.getElementById("upload").onclick = async () => {
+  console.log("🔥 업로드 클릭");
+
   const file = document.getElementById("file").files[0];
   const title = document.getElementById("title").value;
 
@@ -67,27 +68,24 @@ document.getElementById("upload").onclick = async () => {
 
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("upload_preset", "koreatube"); // ✅ preset 이름
+  formData.append("upload_preset", "koreatube");
 
   try {
-    const res = await fetch("https://api.cloudinary.com/v1_1/dftz3fzmw/video/upload", {
+    const res = await fetch("https://api.cloudinary.com/v1_1/dftz3fzmw/upload", {
       method: "POST",
       body: formData
     });
 
     const data = await res.json();
+    console.log("🔥 Cloudinary:", data);
 
     if (!data.secure_url) {
-      console.error(data);
-      return alert("업로드 실패");
+      return alert("업로드 실패: " + JSON.stringify(data));
     }
 
-    const videoUrl = data.secure_url;
-
-    // 🔥 Firestore 저장
     await addDoc(collection(db, "videos"), {
       title: title,
-      url: videoUrl
+      url: data.secure_url
     });
 
     alert("업로드 완료!");
@@ -95,7 +93,7 @@ document.getElementById("upload").onclick = async () => {
 
   } catch (err) {
     console.error(err);
-    alert("에러 발생");
+    alert("업로드 에러");
   }
 };
 
@@ -105,9 +103,9 @@ async function loadVideos() {
   const videosDiv = document.getElementById("videos");
   videosDiv.innerHTML = "";
 
-  const querySnapshot = await getDocs(collection(db, "videos"));
+  const snapshot = await getDocs(collection(db, "videos"));
 
-  querySnapshot.forEach((doc) => {
+  snapshot.forEach((doc) => {
     const data = doc.data();
 
     const div = document.createElement("div");
@@ -123,5 +121,5 @@ async function loadVideos() {
 }
 
 
-// 🔄 처음 로드
+// 🔄 시작 시 실행
 loadVideos();
