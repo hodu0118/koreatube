@@ -14,6 +14,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 
+// 🔥 실행 확인
+console.log("🔥 최신 script.js 실행됨");
+
+
 // 🔥 Firebase 설정
 const firebaseConfig = {
   apiKey: "AIzaSyB1OFbMd0tAj7WADxVKtSWsNlSV1YgV-Po",
@@ -57,30 +61,35 @@ document.getElementById("login").onclick = async () => {
 };
 
 
-// 🎬 영상 업로드 (🔥 CORS 해결 버전)
+// 🎬 영상 업로드 (🔥 CORS 완전 해결 버전)
 document.getElementById("upload").onclick = async () => {
-  console.log("🔥 업로드 클릭");
+  console.log("🔥 업로드 클릭됨");
 
   const file = document.getElementById("file").files[0];
   const title = document.getElementById("title").value;
 
-  if (!file) return alert("파일 선택해!");
+  if (!file) {
+    alert("파일 선택해!");
+    return;
+  }
 
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", "koreatube");
 
   try {
+    // 🔥 여기 중요: /upload (video 아님)
     const res = await fetch("https://api.cloudinary.com/v1_1/dftz3fzmw/upload", {
       method: "POST",
       body: formData
     });
 
     const data = await res.json();
-    console.log("🔥 Cloudinary:", data);
+    console.log("🔥 Cloudinary 응답:", data);
 
     if (!data.secure_url) {
-      return alert("업로드 실패: " + JSON.stringify(data));
+      alert("업로드 실패 👉 " + JSON.stringify(data));
+      return;
     }
 
     await addDoc(collection(db, "videos"), {
@@ -92,8 +101,8 @@ document.getElementById("upload").onclick = async () => {
     loadVideos();
 
   } catch (err) {
-    console.error(err);
-    alert("업로드 에러");
+    console.error("🔥 업로드 에러:", err);
+    alert("업로드 에러 발생");
   }
 };
 
