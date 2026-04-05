@@ -1,14 +1,11 @@
-// Firebase 기본
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 
-// Auth
 import { 
   getAuth, 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword 
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
-// Firestore
 import { 
   getFirestore, 
   collection, 
@@ -16,7 +13,6 @@ import {
   getDocs 
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-// Storage
 import { 
   getStorage, 
   ref, 
@@ -25,42 +21,30 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
 
-// 🔥 네 config 그대로 넣음
+// 🔥 Firebase 설정
 const firebaseConfig = {
   apiKey: "AIzaSyB1OFbMd0tAj7WADxVKtSWsNlSV1YgV-Po",
   authDomain: "koreatube.firebaseapp.com",
   projectId: "koreatube",
   storageBucket: "koreatube.firebasestorage.app",
   messagingSenderId: "71769667172",
-  appId: "1:71769667172:web:906cc4b0ba4af8b04e5171",
-  measurementId: "G-3073EM5ZYP"
+  appId: "1:71769667172:web:906cc4b0ba4af8b04e5171"
 };
 
-// 초기화
 const app = initializeApp(firebaseConfig);
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
 
-// UI 요소
-const signupBtn = document.getElementById("signupBtn");
-const loginBtn = document.getElementById("loginBtn");
-const uploadBtn = document.getElementById("uploadBtn");
+// 🔐 회원가입
+document.getElementById("signup").onclick = async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-const username = document.getElementById("username");
-const password = document.getElementById("password");
-
-const videoInput = document.getElementById("videoInput");
-const titleInput = document.getElementById("titleInput");
-
-const videoList = document.getElementById("videoList");
-
-
-// 회원가입
-signupBtn.onclick = async () => {
   try {
-    await createUserWithEmailAndPassword(auth, username.value, password.value);
+    await createUserWithEmailAndPassword(auth, email, password);
     alert("회원가입 성공!");
   } catch (e) {
     alert(e.message);
@@ -68,10 +52,13 @@ signupBtn.onclick = async () => {
 };
 
 
-// 로그인
-loginBtn.onclick = async () => {
+// 🔑 로그인
+document.getElementById("login").onclick = async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
   try {
-    await signInWithEmailAndPassword(auth, username.value, password.value);
+    await signInWithEmailAndPassword(auth, email, password);
     alert("로그인 성공!");
   } catch (e) {
     alert(e.message);
@@ -79,64 +66,50 @@ loginBtn.onclick = async () => {
 };
 
 
-// 영상 업로드
-uploadBtn.onclick = async () => {
-  if (!auth.currentUser) {
-    alert("로그인 먼저 해주세요!");
-    return;
-  }
+// 📤 업로드
+document.getElementById("upload").onclick = async () => {
+  const file = document.getElementById("file").files[0];
+  const title = document.getElementById("title").value;
 
-  const file = videoInput.files[0];
-  const title = titleInput.value;
+  if (!file) return alert("파일 선택해!");
 
-  if (!file || !title) {
-    alert("입력 부족!");
-    return;
-  }
+  const storageRef = ref(storage, "videos/" + file.name);
 
-  try {
-    const storageRef = ref(storage, "videos/" + Date.now() + "_" + file.name);
-    await uploadBytes(storageRef, file);
+  await uploadBytes(storageRef, file);
+  const url = await getDownloadURL(storageRef);
 
-    const url = await getDownloadURL(storageRef);
+  await addDoc(collection(db, "videos"), {
+    title: title,
+    url: url
+  });
 
-    await addDoc(collection(db, "videos"), {
-      title: title,
-      url: url,
-      user: auth.currentUser.email
-    });
-
-    alert("업로드 완료!");
-    loadVideos();
-
-  } catch (e) {
-    alert("업로드 실패: " + e.message);
-  }
+  alert("업로드 완료!");
+  loadVideos();
 };
 
 
-// 영상 불러오기 (🔥 새로고침 유지)
+// 🎬 영상 불러오기
 async function loadVideos() {
-  videoList.innerHTML = "";
+  const videosDiv = document.getElementById("videos");
+  videosDiv.innerHTML = "";
 
   const querySnapshot = await getDocs(collection(db, "videos"));
 
-  querySnapshot.forEach(doc => {
-    const v = doc.data();
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
 
     const div = document.createElement("div");
-    div.className = "video-card";
+    div.className = "video-box";
 
     div.innerHTML = `
-      <video src="${v.url}" controls></video>
-      <h3>${v.title}</h3>
-      <p>채널: ${v.user}</p>
+      <h4>${data.title}</h4>
+      <video controls src="${data.url}"></video>
     `;
 
-    videoList.appendChild(div);
+    videosDiv.appendChild(div);
   });
 }
 
 
-// 처음 실행
+// 🔄 페이지 로드시 실행
 loadVideos();
