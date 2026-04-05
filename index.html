@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>KoreaTube</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header>
+    <h1>🇰🇷 KoreaTube</h1>
+
+    <div class="header-right">
+      <button id="uploadOpenBtn">업로드</button>
+      <button id="loginOpenBtn">로그인</button>
+    </div>
+  </header>
+
+  <!-- 업로드 모달 -->
+  <div class="modal" id="uploadModal">
+    <div class="modal-content">
+      <h2>영상 업로드</h2>
+      <input type="file" id="videoInput" accept="video/*">
+      <input type="text" id="titleInput" placeholder="영상 제목">
+      <button id="uploadBtn">업로드</button>
+      <button onclick="closeModal('uploadModal')">닫기</button>
+    </div>
+  </div>
+
+  <!-- 로그인 모달 -->
+  <div class="modal" id="loginModal">
+    <div class="modal-content">
+      <h2>로그인 / 회원가입</h2>
+      <input type="text" id="username" placeholder="아이디">
+      <input type="password" id="password" placeholder="비밀번호">
+      <button id="loginBtn">로그인</button>
+      <button id="signupBtn">회원가입</button>
+      <button onclick="closeModal('loginModal')">닫기</button>
+    </div>
+  </div>
+
+  <!-- 메인 -->
+  <main>
+    <div id="videoList" class="video-grid"></div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
