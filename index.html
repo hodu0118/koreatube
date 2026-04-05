@@ -2,49 +2,74 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>KoreaTube</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Koreatube</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #eaf6ff;
+      margin: 0;
+    }
+
+    header {
+      background: #b3e5fc;
+      padding: 15px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 5px;
+    }
+
+    .video-box {
+      background: white;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 10px;
+    }
+
+    video {
+      width: 300px;
+      display: block;
+      margin-top: 10px;
+    }
+  </style>
 </head>
+
 <body>
 
-  <!-- 헤더 -->
-  <header>
-    <h1>🇰🇷 KoreaTube</h1>
+<header>📺 Koreatube</header>
 
-    <div class="header-right">
-      <button id="uploadOpenBtn">업로드</button>
-      <button id="loginOpenBtn">로그인</button>
-    </div>
-  </header>
+<div class="container">
 
-  <!-- 업로드 모달 -->
-  <div class="modal" id="uploadModal">
-    <div class="modal-content">
-      <h2>영상 업로드</h2>
-      <input type="file" id="videoInput" accept="video/*">
-      <input type="text" id="titleInput" placeholder="영상 제목">
-      <button id="uploadBtn">업로드</button>
-      <button onclick="closeModal('uploadModal')">닫기</button>
-    </div>
-  </div>
+  <h3>로그인 / 회원가입</h3>
+  <input type="email" id="email" placeholder="이메일">
+  <input type="password" id="password" placeholder="비밀번호">
+  <button id="signup">회원가입</button>
+  <button id="login">로그인</button>
 
-  <!-- 로그인 모달 -->
-  <div class="modal" id="loginModal">
-    <div class="modal-content">
-      <h2>로그인 / 회원가입</h2>
-      <input type="text" id="username" placeholder="아이디">
-      <input type="password" id="password" placeholder="비밀번호">
-      <button id="loginBtn">로그인</button>
-      <button id="signupBtn">회원가입</button>
-      <button onclick="closeModal('loginModal')">닫기</button>
-    </div>
-  </div>
+  <hr>
 
-  <!-- 메인 -->
-  <main>
-    <div id="videoList" class="video-grid"></div>
-  </main>
+  <h3>영상 업로드</h3>
+  <input type="text" id="title" placeholder="영상 제목">
+  <input type="file" id="file">
+  <button id="upload">업로드</button>
 
- <script type="module" src="script.js"></script>
+  <hr>
+
+  <h3>영상 목록</h3>
+  <div id="videos"></div>
+
+</div>
+
+<script type="module" src="script.js"></script>
+
 </body>
 </html>
